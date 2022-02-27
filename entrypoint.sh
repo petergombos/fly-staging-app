@@ -13,8 +13,8 @@ if [ -z "$PR_NUMBER" ]; then
   exit 1
 fi
 
-REPO_OWNER=$(jq -r .event.base.repository.owner.login /github/workflow/event.json)
-REPO_NAME=$(jq -r .event.base.repository.name /github/workflow/event.json)
+REPO_OWNER=$(jq -r .base.repo.owner.login /github/workflow/event.json)
+REPO_NAME=$(jq -r .base.repo.name /github/workflow/event.json)
 EVENT_TYPE=$(jq -r .action /github/workflow/event.json)
 
 cat /github/workflow/event.json

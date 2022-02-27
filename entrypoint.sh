@@ -13,9 +13,11 @@ if [ -z "$PR_NUMBER" ]; then
   exit 1
 fi
 
-REPO_OWNER=$(jq -r .event.base.repo.owner /github/workflow/event.json)
-REPO_NAME=$(jq -r .event.base.repo.name /github/workflow/event.json)
+REPO_OWNER=$(jq -r .event.base.repository.owner.login /github/workflow/event.json)
+REPO_NAME=$(jq -r .event.base.repository.name /github/workflow/event.json)
 EVENT_TYPE=$(jq -r .action /github/workflow/event.json)
+
+cat /github/workflow/event.json
 
 # Default the Fly app name to pr-{number}-{repo_owner}-{repo_name}
 app="${INPUT_NAME:-pr-$PR_NUMBER-$REPO_OWNER-$REPO_NAME}"
@@ -39,6 +41,7 @@ if ! flyctl status --app "$app"; then
   flyctl launch --no-deploy --copy-config --name "$app" --image "$image" --region "$region" --org "$org"
   # Attach postgres cluster to the app if specified.
   if [ -n "$INPUT_POSTGRES" ]; then
+  echo 'attaching postgres cluster'
     flyctl postgres attach --postgres-app "$INPUT_POSTGRES" || true
   fi
   flyctl deploy --app "$app" --region "$region" --image "$image" --region "$region" --strategy immediate
